@@ -1,0 +1,28 @@
+.container {
+    background-color: darkgrey;
+    width: 300px;
+    color: white;
+    border-radius: 40px;
+    margin: 20px;
+    &:hover{
+        color: black;
+    }
+}
+
+.container button {
+    background-color: pink;
+    color: white;
+    display: flex;
+    &:hover {
+        background-color: red;
+        color: yellow;
+    }
+}
+
+.container img {
+    height: 200px;
+    width: 200px;
+    padding: 10px;  
+    border-radius: 50px;
+
+}
