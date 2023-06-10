@@ -1,0 +1,25 @@
+.container {
+    background-color: lightsteelblue;
+    width: 300px;
+    color: white;
+    border-radius: 20px;
+    margin: 20px;
+  
+}
+
+.container button {
+    background-color: pink;
+    color: white;
+    display: flex;
+    &:hover {
+        background-color: red;
+        color: yellow;
+    }
+}
+
+.container img {
+    height: 250px;
+    width: 280px;
+    padding: 10px;  
+    border-radius: 20px;
+}
