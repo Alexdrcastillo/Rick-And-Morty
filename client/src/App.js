@@ -1,42 +1,130 @@
-import Card from './components/Card';
-import './App.css';
-import Cards from './components/Cards';
-import { SearchBar } from './components/SearchBar';
-import Navbar from './components/Navbar';
-import { useEffect, useState } from 'react';
-import { Link, NavLink, Route, Routes } from 'react-router-dom';
-import Home from './components/Home';
-import Form from './components/Form';
-import Favorites from './components/Favorites';
-import { useSelector, useDispatch } from 'react-redux'
-import { setUser, unsetUser } from './redux/reducer.js/cart/cartSlice';
-import axios from "axios"
+import { useState, useEffect } from "react";
+import axios from "axios";
+import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { removeFavorite } from './redux/actions';
+import Detail from "./views/detail/detail";
+import About from "./views/about/about";
+import Cards from "./components/cards/Cards";
+import Navbar from "./components/navBar/navBar";
+import ErrorPage from "./views/error/errorPage";
+import LandingPage from "./views/landingPage/landingPage";
+import Favorites from "./views/favorites/favorites";
+import "./App.css";
+import LoginForm from "./components/loginForm/loginForm";
+import RegisterUser from "./components/register/registerUser";
 
-function App(){
+function App() {
+  const [characters, setCharacters] = useState([]);
+  const [access, setAccess] = useState(true);
+
+  const location = useLocation();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+
+  async function login(userData) {
+    try {
+      const { email, password } = userData;
+      const URL = "http://localhost:3001/rickandmorty/login/";
+      const { data } = await axios(URL + `?email=${email}&password=${password}`);
+      console.log("Datos recibidos del servidor:", data); 
+  
+      if (access) {
+        console.log("Inicio de sesión exitoso:", userData);
+        setAccess(data);
+        navigate("/home");
+      } else {
+        console.log("Error de inicio de sesión. Datos incorrectos:", userData);
+        setAccess(false);
+        
+      }
+    } catch (error) {
+      console.log("Error en la función login:", error);
+    }
+  }
   
 
-  const [access, setAccess] = useState(false);
+  useEffect(() => {
+    !access && navigate("/");
+  }, [access]);
 
-  const login = (userData) => {
-    const { email, password } = userData;
-    const URL = 'http://localhost:3001/rickandmorty/login/';
-    axios(URL + `?email=${email}&password=${password}`)
-    .then(({ data }) => { // desestructuarion de response.data
-       const { access } = data;
-       setAccess(access);
-       access && navigate('/home');
-    });
- }
+  async function searchHandler(id) {
+    // setCharacters([...characters, example]);
 
- useEffect(()=> {
-    access
- }, [access])
+    try {
+      const response = await axios(
+        `http://localhost:3001/rickandmorty/character/${id}`
+      );
+      const data = response.data;
+      if (data.name) {
+        setCharacters((oldChars) => [...oldChars, data]);
+      } else {
+        window.alert("¡No hay personajes con este ID!");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  function closeHandler(id) {
+    const updatedCharacters = characters.filter((character) => character.id !== id);
+  
+    setCharacters(updatedCharacters);
+    dispatch(removeFavorite(id));
+  }  
+  
+
+  function randomHandler() {
+    let haveIt = [];
+    //Generate random number
+    let random = (Math.random() * 826).toFixed();
+
+    //Coerce to number by boxing
+    random = Number(random);
+
+    if (!haveIt.includes(random)) {
+      haveIt.push(random);
+      fetch(`https://rickandmortyapi.com/api/character/${random}`)
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.name) {
+            setCharacters((oldChars) => [...oldChars, data]);
+          } else {
+            window.alert("No hay personajes con ese ID");
+          }
+        });
+    } else {
+      console.log("Ya agregaste todos los personajes");
+      return false;
+    }
+  }
+
 
   return (
     <div className="App">
-       <Home /> 
+      <div>
+        <img src="./assets/cursor.png" alt="" className="customCursor" />
+      
+      {location.pathname !== "/" && (
+        <Navbar onSearch={searchHandler} random={randomHandler} />
+      )}
+
+      <Routes>
+      <Route path="/" element={<LandingPage login={login} />} />
+        <Route
+          path="/home"
+          element={<Cards characters={characters} onClose={closeHandler} />}
+        />
+        <Route path="/detail/:id" element={<Detail />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/favorites" element={<Favorites />} />
+        <Route path="/register" element={<RegisterUser />} />
+        <Route path="*" element={<ErrorPage />} />
+      </Routes>
     </div>
+  </div>
   );
-} 
+}
 
 export default App;
