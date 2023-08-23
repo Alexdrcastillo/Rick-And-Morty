@@ -15,15 +15,9 @@ const About = () => {
         <div className="container">
           <div className="titulo">
             <h1>HOLA 🖐</h1>
-            <h2>Soy Orlibet Dun</h2>
+            <h2>Soy Alexander Castillo</h2>
             <p>Este es mi proyecto integrador de Rick and Morty</p>
-            <p>Hecho con disciplina, constancia y amor</p>
-            <img
-              src={logo}
-              alt=""
-              width="200px"
-              style={{ borderRadius: '70%', marginTop: '35px', marginBottom: '10px' }}
-            />
+         
           </div>
           <img className="rimage" src={rimage} alt="" />
         </div>
